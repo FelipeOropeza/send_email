@@ -2,13 +2,11 @@
 
 use Livewire\Component;
 use Illuminate\Support\Str;
+use App\Livewire\Forms\EmailForm;
 
 new class extends Component {
-    public string $email = '';
+    public EmailForm $form;
     public array $emails = [];
-
-    public string $subject = '';
-    public string $message = '';
 
     public function addEmail()
     {
@@ -30,6 +28,7 @@ new class extends Component {
 
     public function send()
     {
+        $validated = $this->validate();
         // aqui depois entra Job + Mailable
         // foreach ($this->emails as $email) {}
 
@@ -46,8 +45,12 @@ new class extends Component {
         </h1>
 
         <div class="flex gap-2">
-            <flux:input wire:model.defer="email" type="email" placeholder="email@exemplo.com" class="w-full" />
-
+            <flux:input wire:model.defer="form.email" type="email" placeholder="email@exemplo.com" class="w-full" />
+            <div>
+                @error('form.email')
+                    <span class="error">{{ $message }}</span>
+                @enderror
+            </div>
             <flux:button wire:click="addEmail">
                 Adicionar
             </flux:button>
@@ -69,12 +72,22 @@ new class extends Component {
 
         <div class="flex flex-col gap-2">
             <flux:label>Assunto</flux:label>
-            <flux:input wire:model.defer="subject" class="w-full" />
+            <flux:input wire:model.defer="form.subject" class="w-full" />
+            <div>
+                @error('form.subject')
+                    <span class="error">{{ $message }}</span>
+                @enderror
+            </div>
         </div>
 
         <div class="flex flex-col gap-2">
             <flux:label>Mensagem</flux:label>
-            <flux:textarea wire:model.defer="message" class="w-full h-40" />
+            <flux:textarea wire:model.defer="form.message" class="w-full h-40" />
+            <div>
+                @error('form.message')
+                    <span class="error">{{ $message }}</span>
+                @enderror
+            </div>
         </div>
 
         <flux:button wire:click="send">
