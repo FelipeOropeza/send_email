@@ -1,9 +1,9 @@
 <?php
 
 use Livewire\Component;
+use Illuminate\Support\Str;
 
-new class extends Component
-{
+new class extends Component {
     public string $email = '';
     public array $emails = [];
 
@@ -12,18 +12,20 @@ new class extends Component
 
     public function addEmail()
     {
-        if ($this->email && !in_array($this->email, $this->emails)) {
-            $this->emails[] = $this->email;
+        $email = Str::lower(trim($this->email));
+
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            return;
         }
+
+        $this->emails = collect($this->emails)->push($email)->unique()->values()->all();
 
         $this->email = '';
     }
 
-    public function removeEmail($email)
+    public function removeEmail(string $email)
     {
-        $this->emails = array_values(
-            array_filter($this->emails, fn ($e) => $e !== $email)
-        );
+        $this->emails = collect($this->emails)->reject(fn($e) => $e === $email)->values()->all();
     }
 
     public function send()
@@ -44,28 +46,20 @@ new class extends Component
         </h1>
 
         <div class="flex gap-2">
-            <flux:input
-                wire:model.defer="email"
-                type="email"
-                placeholder="email@exemplo.com"
-                class="w-full"
-            />
+            <flux:input wire:model.defer="email" type="email" placeholder="email@exemplo.com" class="w-full" />
 
             <flux:button wire:click="addEmail">
                 Adicionar
             </flux:button>
         </div>
 
-        @if(count($emails))
+        @if (count($emails))
             <div class="border rounded-lg p-3 flex flex-col gap-2">
-                @foreach($emails as $email)
+                @foreach ($emails as $email)
                     <div class="flex justify-between items-center text-sm">
                         <span>{{ $email }}</span>
 
-                        <flux:button
-                            size="xs"
-                            variant="ghost"
-                            wire:click="removeEmail('{{ $email }}')">
+                        <flux:button size="xs" variant="ghost" wire:click="removeEmail('{{ $email }}')">
                             remover
                         </flux:button>
                     </div>
@@ -80,10 +74,7 @@ new class extends Component
 
         <div class="flex flex-col gap-2">
             <flux:label>Mensagem</flux:label>
-            <flux:textarea
-                wire:model.defer="message"
-                class="w-full h-40"
-            />
+            <flux:textarea wire:model.defer="message" class="w-full h-40" />
         </div>
 
         <flux:button wire:click="send">
