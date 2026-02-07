@@ -2,10 +2,13 @@
 
 use Livewire\Component;
 use Illuminate\Support\Str;
-use App\Livewire\Forms\EmailForm;
 
 new class extends Component {
-    public EmailForm $form;
+    // Propriedades do formulário agora vivem diretamente no componente
+    public string $email = '';
+    public string $subject = '';
+    public string $message = '';
+
     public array $emails = [];
 
     /**
@@ -13,17 +16,15 @@ new class extends Component {
      */
     public function addEmail()
     {
-        // Valida apenas o campo de e-mail usando as regras do Form Object.
-        // Se a validação falhar, o Livewire exibirá o erro automaticamente.
-        $this->validate(['form.email' => 'required|email']);
+        // Valida a propriedade pública 'email' do componente.
+        $this->validate(['email' => 'required|email']);
 
-        $email = Str::lower(trim($this->form->email));
+        $email = Str::lower(trim($this->email));
 
-        // Adiciona o e-mail à lista, garantindo que seja único.
         $this->emails = collect($this->emails)->push($email)->unique()->values()->all();
 
-        // Limpa apenas o campo de e-mail do formulário.
-        $this->form->reset('email');
+        // Limpa a propriedade 'email'.
+        $this->reset('email');
     }
 
     /**
@@ -45,26 +46,25 @@ new class extends Component {
             return;
         }
 
-        // 2. Valida apenas os campos necessários para o envio (ignora o form.email).
+        // 2. Valida as propriedades públicas do componente.
         $validated = $this->validate([
-            'form.subject' => 'required|string|max:255',
-            'form.message' => 'required|string',
+            'subject' => 'required|string|max:255',
+            'message' => 'required|string',
         ]);
 
         // 3. Envia o e-mail para cada destinatário da lista.
-        foreach ($this->emails as $email) {
-            \Mail::to($email)->send(new \App\Mail\TesteEnvio(
-                $this->form->subject,
-                $this->form->message,
-                $email
+        foreach ($this->emails as $recipientEmail) {
+            \Mail::to($recipientEmail)->send(new \App\Mail\TesteEnvio(
+                $this->subject,
+                $this->message,
+                $recipientEmail
             ));
         }
         
         session()->flash('status', 'E-mails enviados com sucesso!');
 
-        // 4. Limpa o formulário e a lista de e-mails após o envio.
-        $this->form->reset();
-        $this->emails = [];
+        // 4. Limpa todas as propriedades públicas relevantes.
+        $this->reset('email', 'subject', 'message', 'emails');
     }
 };
 ?>
@@ -84,8 +84,8 @@ new class extends Component {
 
         <div class="flex gap-2 items-start">
             <div class="w-full">
-                <flux:input wire:model="form.email" wire:keydown.enter="addEmail" type="email" placeholder="email@exemplo.com" class="w-full" />
-                @error('form.email')
+                <flux:input wire:model="email" wire:keydown.enter="addEmail" type="email" placeholder="email@exemplo.com" class="w-full" />
+                @error('email')
                     <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
                 @enderror
             </div>
@@ -114,16 +114,16 @@ new class extends Component {
 
         <div class="flex flex-col gap-2">
             <flux:label>Assunto</flux:label>
-            <flux:input wire:model="form.subject" class="w-full" />
-            @error('form.subject')
+            <flux:input wire:model="subject" class="w-full" />
+            @error('subject')
                 <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
             @enderror
         </div>
 
         <div class="flex flex-col gap-2">
             <flux:label>Mensagem</flux:label>
-            <flux:textarea wire:model="form.message" class="w-full h-40" />
-            @error('form.message')
+            <flux:textarea wire:model="message" class="w-full h-40" />
+            @error('message')
                 <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
             @enderror
         </div>
