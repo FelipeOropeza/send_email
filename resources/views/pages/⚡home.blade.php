@@ -2,6 +2,7 @@
 
 use Livewire\Component;
 use Illuminate\Support\Str;
+use App\Jobs\EnviarEmailJob;
 
 new class extends Component {
     public string $email = '';
@@ -42,7 +43,7 @@ new class extends Component {
         ]);
 
         foreach ($this->emails as $recipientEmail) {
-            \Mail::to($recipientEmail)->send(new \App\Mail\TesteEnvio($this->subject, $this->message, $recipientEmail));
+            EnviarEmailJob::dispatch($recipientEmail, $this->subject, $this->message);
         }
 
         session()->flash('status', 'E-mails enviados com sucesso!');
@@ -57,7 +58,7 @@ new class extends Component {
     <div class="w-full max-w-lg p-6 flex flex-col gap-4">
 
         @if (session('status'))
-            <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg">
+            <div x-data="{ show: true }" x-init="setTimeout(() => show = false, 2000)" x-show="show" class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg">
                 {{ session('status') }}
             </div>
         @endif

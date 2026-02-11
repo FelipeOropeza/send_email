@@ -2,13 +2,13 @@
 
 namespace App\Jobs;
 
+use App\Mail\EmailEnvio;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Mail;
-use App\Mail\TesteEnvio;
 
 class EnviarEmailJob implements ShouldQueue
 {
@@ -23,7 +23,7 @@ class EnviarEmailJob implements ShouldQueue
 
     /**
      * Create a new job instance.
-     * 
+     *
      * @param string $destinatario O e-mail para quem vamos enviar.
      * @param string $assunto O assunto do e-mail.
      * @param string $mensagem A mensagem do e-mail.
@@ -37,13 +37,13 @@ class EnviarEmailJob implements ShouldQueue
 
     /**
      * Execute the job.
-     * 
+     *
      * Este método é chamado pelo "worker" da fila.
      */
     public function handle(): void
     {
         // Cria uma instância do seu Mailable com os dados recebidos
-        $email = new TesteEnvio(
+        $email = new EmailEnvio(
             $this->assunto,
             $this->mensagem,
             $this->destinatario

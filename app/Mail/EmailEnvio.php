@@ -9,11 +9,13 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class TesteEnvio extends Mailable
+class EmailEnvio extends Mailable
 {
     use Queueable, SerializesModels;
 
-    // Propriedades públicas para serem acessadas na view e para definir o assunto
+    /**
+     * Create a new message instance.
+     */
     public string $mensagem;
     public string $email_teste;
 
@@ -50,7 +52,7 @@ class TesteEnvio extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'emails.teste-envio',
+            view: 'emails.email-envio',
         );
     }
 

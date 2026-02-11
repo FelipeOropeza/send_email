@@ -13,10 +13,6 @@
     <div style="padding: 10px; border: 1px solid #ccc; border-radius: 5px; background-color: #f9f9f9;">
         <p>{{ $mensagem }}</p>
     </div>
-
-    <p>
-        <small>Este é um e-mail de teste enviado a partir da aplicação.</small>
-    </p>
 </body>
 
 </html>
